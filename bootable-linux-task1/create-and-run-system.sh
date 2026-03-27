@@ -26,24 +26,27 @@ VMLINUZ="bzImage--6.12.69+git0+5b1ff7df00_a7fbaf7533-r0-genericx86-64-2026021622
 KERNEL_MODULES="modules--6.12.69+git0+5b1ff7df00_a7fbaf7533-r0-genericx86-64-20260216222645.tgz"
 
 echo
-echo "Step 1: Clean previous build (if any)"
+### Step 1: Clean previous build (if any) ###
+echo "=== Step 1: Clean previous build (if any) ==="
 if test -d bitbake-builds; then
     echo "  Found existing bitbake-builds directory, removing it..."
     rm -rf bitbake-builds
 else
     echo "  No existing bitbake-builds directory found."
 fi
-
 echo
-echo "Step 2: Initialize BitBake build directory"
+
+### Step 2: Initialize BitBake build directory ###
+echo "=== Step 2: Initialize BitBake build directory ==="
 ./bitbake/bin/bitbake-setup init --non-interactive poky-master poky-with-sstate distro/poky machine/qemux86-64
 if [ $? -ne 0 ]; then
     echo "ERROR: bitbake-setup failed" >&2
     exit 1
 fi
-
 echo
-echo "Step 3: Copy layers and recipes"
+
+### Step 3: Copy layers and recipes ###
+echo "=== Step 3: Copy layers and recipes ==="
 echo "  Copying meta-poky to meta-custom: $META_POKY -> $META_CUSTOM"
 cp -r "$META_POKY" "$META_CUSTOM"
 
@@ -55,18 +58,20 @@ for file in "$HOME/$SETUP_RECIPES/$RECIPES_CORE"/*; do
     echo "    - $file"
     cp -r "$file" "$META_CUSTOM/$RECIPES_CORE/"
 done
-
 echo
-echo "Step 4: Download kernel image and modules into recipe files directory"
+
+### Step 4: Download kernel image and modules ###
+echo "=== Step 4: Download kernel image and modules into recipe files directory ==="
 cd "$LINUX_KERNEL_DST"
 echo "  Downloading kernel image: $VMLINUZ"
 wget "https://downloads.yoctoproject.org/releases/yocto/yocto-5.3.2/machines/genericx86-64/$VMLINUZ"
 echo "  Downloading kernel modules archive: $KERNEL_MODULES"
 wget "https://downloads.yoctoproject.org/releases/yocto/yocto-5.3.2/machines/genericx86-64/$KERNEL_MODULES"
 cd "$HOME"
-
 echo
-echo "Step 5: Install configuration files"
+
+### Step 5: Install configuration files ###
+echo "=== Step 5: Install configuration files ==="
 echo "  Creating machine conf directory: $QEMUX86_64_CONF_DST"
 mkdir -p "$QEMUX86_64_CONF_DST"
 
@@ -78,9 +83,10 @@ cp "$LOCAL_CONF_SRC" "$LOCAL_CONF_DST"
 
 echo "  Copying layer.conf"
 cp "$LAYER_CONF_SRC" "$LAYER_CONF_DST"
-
 echo
-echo "Step 6: Source BitBake build environment"
+
+### Step 6: Source BitBake build environment ###
+echo "=== Step 6: Source BitBake build environment ==="
 INIT_ENV="$HOME/bitbake-builds/poky-master/build/init-build-env"
 if [ ! -f "$INIT_ENV" ]; then
     echo "ERROR: Build init script not found at $INIT_ENV" >&2
@@ -93,9 +99,10 @@ if [ $? -ne 0 ]; then
     echo "ERROR: Failed to source init-build-env" >&2
     exit 1
 fi
-
 echo
-echo "Step 7: Configure build fragments and layers"
+
+### Step 7: Configure build fragments and layers ###
+echo "=== Step 7: Configure build fragments and layers ==="
 echo "  Disabling fragment: machine/qemux86-64"
 bitbake-config-build disable-fragment machine/qemux86-64
 if [ $? -ne 0 ]; then
@@ -116,22 +123,24 @@ if [ $? -ne 0 ]; then
     echo "ERROR: bitbake-layers add-layer failed" >&2
     exit 1
 fi
-
 echo
-echo "Step 8: Build core-image-minimal"
+
+### Step 8: Build core-image-minimal ###
+echo "=== Step 8: Build core-image-minimal ==="
 bitbake core-image-minimal
 if [ $? -ne 0 ]; then
     echo "ERROR: bitbake core-image-minimal failed" >&2
     exit 1
 fi
-
 echo
-echo "Step 9: Launch QEMU with built image"
+
+### Step 9: Launch QEMU with built image ###
+echo "=== Step 9: Launch QEMU with built image ==="
 runqemu qemux86-64 core-image-minimal wic nographic snapshot slirp
 if [ $? -ne 0 ]; then
     echo "ERROR: runqemu failed" >&2
     exit 1
 fi
-
 echo
-echo "All steps completed successfully."
+
+echo "=== All steps completed successfully. ==="
