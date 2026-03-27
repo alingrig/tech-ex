@@ -1,0 +1,38 @@
+# Yocto/BitBake build directories
+tmp/
+sstate-cache/
+build/
+bitbake-builds/
+
+# Sstate and other caches
+sstate-cache*/
+.cache/
+
+# BitBake logs
+*.log
+bitbake-cookerdaemon.log
+
+# Python bytecode/temp
+*.pyc
+*.pyo
+__pycache__/
+*.swp
+*.swo
+*~
+
+# Patches/rejects
+*.rej
+*.orig
+
+# Documentation builds
+bitbake/doc/manual/*/
+doc/build/
+doc/html/
+doc/pdf/
+
+#Linux Kernel
+recipes/recipes-kernel/linux-kernel-custom/files/*
+
+# OS generated
+.DS_Store
+Thumbs.db
