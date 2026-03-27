@@ -1,0 +1,6 @@
+[submodule "bootable-linux-test/bitbake-builds/poky-master/build/bitbake"]
+	path = bootable-linux-test/bitbake-builds/poky-master/build/bitbake
+	url = git://git.openembedded.org/bitbake
+[submodule "bootable-linux-task1/bitbake"]
+	path = bootable-linux-task1/bitbake
+	url = git://git.openembedded.org/bitbake
