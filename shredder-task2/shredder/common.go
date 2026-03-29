@@ -39,11 +39,11 @@ func genRandomContent(n int) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return b, err
+	return b, nil
 }
 
 /*****************************Shredding Functions*******************************************/
-func shredChunk(f *os.File, start int64, fileSize int64, content []byte) {
+func shredChunk(f *os.File, start int64, fileSize int64, content []byte) error {
 	if remaining := fileSize - start; int64(len(content)) > remaining {
 		content = content[:remaining]
 	}
@@ -51,8 +51,10 @@ func shredChunk(f *os.File, start int64, fileSize int64, content []byte) {
 	_, err := f.WriteAt(content, start)
 	if err != nil {
 		fmt.Println("Write error:", err)
-		return
+		return err
 	}
+
+	return nil
 }
 
 /**********************************BitField functions***************************************/
@@ -72,8 +74,7 @@ func (bf *bitField) firstFree() (uint64, error) {
 
 		// Try to claim it with CAS
 		bitMask := uint64(1) << bitIdx
-		expected := current
-		if atomic.CompareAndSwapUint64(&(*bf)[wordIdx], expected, expected|bitMask) {
+		if atomic.CompareAndSwapUint64(&(*bf)[wordIdx], current, current|bitMask) {
 			return globalPos, nil
 		}
 	}
@@ -103,12 +104,15 @@ func newMinionsPool(minions int) *minionsPool {
 	}
 }
 
-func (mp *minionsPool) Close(f *os.File) {
+func (mp *minionsPool) Close(f *os.File) error {
 	if mp.waitG != nil {
 		mp.waitG.Wait()
 	}
 
 	if err := f.Sync(); err != nil {
 		fmt.Println("Sync error:", err)
+		return err
 	}
+
+	return nil
 }
