@@ -88,6 +88,10 @@ func (bf *bitField) initBits(fileSize int64) {
 
     *bf = make(bitField, chunkBitWords)
 
+	if totalChunks == 0 {
+        return
+    }
+
 	// Mark all bits beyond totalBits - 1 as used (1)
 	lastWordIdx := (totalChunks - 1) / bitFieldArrayElemSize
 	firstUnusedBitInLastWord := (totalChunks - 1) % bitFieldArrayElemSize + 1
